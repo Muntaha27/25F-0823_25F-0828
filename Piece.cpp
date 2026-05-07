@@ -66,3 +66,17 @@ bool Queen::isMoveValid(int nx, int ny, Piece* board[8][8]) const {
 string Queen::getWhiteTexturePath() const { return "pieces/white/wq.png"; }
 string Queen::getBlackTexturePath() const { return "pieces/black/bq.png"; }
 PieceType Queen::getType() const { return QUEEN; }
+
+// rook
+Rook::Rook(int x, int y, PlayerColor color) : Piece(x, y, color, ROOK) {}
+
+bool Rook::isMoveValid(int nx, int ny, Piece* board[8][8]) const {
+    if (x == nx && y == ny) return false;
+    if (board[nx][ny] && !isEnemy(board[nx][ny])) return false;
+    if (x != nx && y != ny) return false; // must be straight
+    return isPathClear(nx, ny, board);
+}
+string Rook::getWhiteTexturePath() const { return "pieces/white/wr.png"; }
+string Rook::getBlackTexturePath() const { return "pieces/black/br.png"; }
+PieceType Rook::getType() const { return ROOK; }
+
