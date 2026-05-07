@@ -1,7 +1,9 @@
 #pragma once
 
+#include <SFML/Graphics.hpp>
 #include <iostream>
 
+using namespace sf;
 using namespace std;
 
 // constants
@@ -41,4 +43,59 @@ public:
 	// utility
 	bool isEnemy(const Piece* other) const;
 	bool isPathClear(int nx, int ny, Piece* board[8][8]) const; // for sliding pieces
+};
+
+// derived classes
+class King : public Piece {
+public:
+	King(int x, int y, PlayerColor color);
+	bool isMoveValid(int nx, int ny, Piece* board[8][8]) const override;
+	string getWhiteTexturePath() const override;
+	string getBlackTexturePath() const override;
+	PieceType getType() const override;
+};
+
+class Queen : public Piece {
+public:
+	Queen(int x, int y, PlayerColor color);
+	bool isMoveValid(int nx, int ny, Piece* board[8][8]) const override;
+	string getWhiteTexturePath() const override;
+	string getBlackTexturePath() const override;
+	PieceType getType() const override;
+};
+
+class Rook : public Piece {
+public:
+	Rook(int x, int y, PlayerColor color);
+	bool isMoveValid(int nx, int ny, Piece* board[8][8]) const override;
+	string getWhiteTexturePath() const override;
+	string getBlackTexturePath() const override;
+	PieceType getType() const override;
+};
+
+class Bishop : public Piece {
+public:
+	Bishop(int x, int y, PlayerColor color);
+	bool isMoveValid(int nx, int ny, Piece* board[8][8]) const override;
+	string getWhiteTexturePath() const override;
+	string getBlackTexturePath() const override;
+	PieceType getType() const override;
+};
+
+class Knight : public Piece {
+public:
+	Knight(int x, int y, PlayerColor color);
+	bool isMoveValid(int nx, int ny, Piece* board[8][8]) const override;
+	string getWhiteTexturePath() const override;
+	string getBlackTexturePath() const override;
+	PieceType getType() const override;
+};
+
+class Pawn : public Piece {
+public:
+	Pawn(int x, int y, PlayerColor color);
+	bool isMoveValid(int nx, int ny, Piece* board[8][8]) const override;
+	string getWhiteTexturePath() const override;
+	string getBlackTexturePath() const override;
+	PieceType getType() const override;
 };
