@@ -80,3 +80,54 @@ string Rook::getWhiteTexturePath() const { return "pieces/white/wr.png"; }
 string Rook::getBlackTexturePath() const { return "pieces/black/br.png"; }
 PieceType Rook::getType() const { return ROOK; }
 
+// bishop
+Bishop::Bishop(int x, int y, PlayerColor color) : Piece(x, y, color, BISHOP) {}
+
+bool Bishop::isMoveValid(int nx, int ny, Piece* board[8][8]) const {
+    if (x == nx && y == ny) return false;
+    if (board[nx][ny] && !isEnemy(board[nx][ny])) return false;
+    if (abs(nx - x) != abs(ny - y)) return false; // must be diagonal
+    return isPathClear(nx, ny, board);
+}
+string Bishop::getWhiteTexturePath() const { return "pieces/white/wb.png"; }
+string Bishop::getBlackTexturePath() const { return "pieces/black/bb.png"; }
+PieceType Bishop::getType() const { return BISHOP; }
+
+// knight
+Knight::Knight(int x, int y, PlayerColor color) : Piece(x, y, color, KNIGHT) {}
+
+bool Knight::isMoveValid(int nx, int ny, Piece* board[8][8]) const {
+    if (board[nx][ny] && !isEnemy(board[nx][ny])) return false;
+    int dx = abs(nx - x), dy = abs(ny - y);
+    return (dx == 2 && dy == 1) || (dx == 1 && dy == 2);
+}
+string Knight::getWhiteTexturePath() const { return "pieces/white/wn.png"; }
+string Knight::getBlackTexturePath() const { return "pieces/black/bn.png"; }
+PieceType Knight::getType() const { return KNIGHT; }
+
+// pawn
+Pawn::Pawn(int x, int y, PlayerColor color) : Piece(x, y, color, PAWN_TYPE) {}
+
+bool Pawn::isMoveValid(int nx, int ny, Piece* board[8][8]) const {
+    int dir = (color == WHITE) ? -1 : 1; // White moves up (decreasing y), Black moves down
+    int dx = nx - x;
+    int dy = ny - y;
+
+    // One step forward
+    if (dx == 0 && dy == dir && !board[nx][ny])
+        return true;
+
+    // Two steps from starting row
+    int startRow = (color == WHITE) ? 6 : 1;
+    if (dx == 0 && dy == 2 * dir && y == startRow && !board[nx][ny] && !board[x][y + dir])
+        return true;
+
+    // Diagonal capture
+    if (abs(dx) == 1 && dy == dir && board[nx][ny] && isEnemy(board[nx][ny]))
+        return true;
+
+    return false;
+}
+string Pawn::getWhiteTexturePath() const { return "pieces//white//wp.png"; }
+string Pawn::getBlackTexturePath() const { return "pieces//black//bp.png"; }
+PieceType Pawn::getType() const { return PAWN_TYPE; }
