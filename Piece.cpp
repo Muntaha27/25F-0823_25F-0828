@@ -33,3 +33,36 @@ bool Piece::isPathClear(int nx, int ny, Piece* board[8][8]) const {
     }
     return true;
 }
+
+// king
+King::King(int x, int y, PlayerColor color) : Piece(x, y, color, KING) {}
+
+bool King::isMoveValid(int nx, int ny, Piece* board[8][8]) const {
+    int dx = abs(nx - x), dy = abs(ny - y);
+    if (dx > 1 || dy > 1 || (dx == 0 && dy == 0)) return false;
+    if (board[nx][ny] && !isEnemy(board[nx][ny]))   return false;
+    return true;
+}
+string King::getWhiteTexturePath() const { return "pieces/white/wk.png"; }
+string King::getBlackTexturePath() const { return "pieces/black/bk.png"; }
+PieceType King::getType() const { return KING; }
+
+// queen
+Queen::Queen(int x, int y, PlayerColor color) : Piece(x, y, color, QUEEN) {}
+
+bool Queen::isMoveValid(int nx, int ny, Piece* board[8][8]) const {
+    if (x == nx && y == ny) return false;
+
+    if (board[nx][ny] && !isEnemy(board[nx][ny])) return false;
+
+    int dx = abs(nx - x), dy = abs(ny - y);
+
+    bool straight = (x == nx || y == ny);
+    bool diagonal = (dx == dy);
+    if (!straight && !diagonal) return false;
+
+    return isPathClear(nx, ny, board);
+}
+string Queen::getWhiteTexturePath() const { return "pieces/white/wq.png"; }
+string Queen::getBlackTexturePath() const { return "pieces/black/bq.png"; }
+PieceType Queen::getType() const { return QUEEN; }
