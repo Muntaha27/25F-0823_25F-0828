@@ -131,3 +131,90 @@ bool Pawn::isMoveValid(int nx, int ny, Piece* board[8][8]) const {
 string Pawn::getWhiteTexturePath() const { return "pieces//white//wp.png"; }
 string Pawn::getBlackTexturePath() const { return "pieces//black//bp.png"; }
 PieceType Pawn::getType() const { return PAWN_TYPE; }
+
+// board
+chessBoard::chessBoard()
+    : currentTurn(WHITE), selectedPiece(nullptr),
+    selectedX(-1), selectedY(-1), gameOver(false), winner(WHITE)
+{
+    clearBoard();
+    for (int t = 0; t < 6; t++)
+        for (int c = 0; c < 2; c++)
+            texturesLoaded[t][c] = false;
+}
+
+chessBoard::~chessBoard() {
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
+            if (grid[i][j]) { delete grid[i][j]; grid[i][j] = nullptr; }
+}
+
+void chessBoard::clearBoard() {
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
+            grid[i][j] = nullptr;
+}
+
+void chessBoard::placePiece(Piece* p) {
+    grid[p->getX()][p->getY()] = p;
+}
+
+bool chessBoard::isInBounds(int x, int y) const {
+    return x >= 0 && x < 8 && y >= 0 && y < 8;
+}
+
+// init standard chess layout
+void chessBoard::initPieces() {
+    // Clear any existing pieces
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
+            if (grid[i][j]) { delete grid[i][j]; grid[i][j] = nullptr; }
+
+    // White back rank (row 7)
+    placePiece(new Rook(0, 7, WHITE));
+    placePiece(new Knight(1, 7, WHITE));
+    placePiece(new Bishop(2, 7, WHITE));
+    placePiece(new Queen(3, 7, WHITE));
+    placePiece(new King(4, 7, WHITE));
+    placePiece(new Bishop(5, 7, WHITE));
+    placePiece(new Knight(6, 7, WHITE));
+    placePiece(new Rook(7, 7, WHITE));
+
+    // White pawns (row 6)
+    for (int i = 0; i < 8; i++)
+        placePiece(new Pawn(i, 6, WHITE));
+
+    // Black back rank (row 0)
+    placePiece(new Rook(0, 0, BLACK));
+    placePiece(new Knight(1, 0, BLACK));
+    placePiece(new Bishop(2, 0, BLACK));
+    placePiece(new Queen(3, 0, BLACK));
+    placePiece(new King(4, 0, BLACK));
+    placePiece(new Bishop(5, 0, BLACK));
+    placePiece(new Knight(6, 0, BLACK));
+    placePiece(new Rook(7, 0, BLACK));
+
+    // Black pawns (row 1)
+    for (int i = 0; i < 8; i++)
+        placePiece(new Pawn(i, 1, BLACK));
+}
+
+// texture loading
+void chessBoard::loadTexture(Piece* p) {
+    int t = (int)p->getType();
+    int c = (int)p->getColor();
+
+    if (texturesLoaded[t][c]) return;
+
+    string path = (c == WHITE) ? p->getWhiteTexturePath() : p->getBlackTexturePath();
+
+    if (!textures[t][c].loadFromFile(path))
+        cerr << "Failed to load: " << path << "\n";
+    else
+        texturesLoaded[t][c] = true;
+}
+
+Texture* chessBoard::getTexture(Piece* p) {
+    loadTexture(p);
+    return &textures[(int)p->getType()][(int)p->getColor()];
+}
