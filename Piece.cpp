@@ -239,3 +239,99 @@ bool chessBoard::wouldLeaveKingInCheck(int fx, int fy, int tx, int ty, PlayerCol
 
     return inCheck;
 }
+
+bool chessBoard::hasAnyValidMove(PlayerColor color) const {
+    // Local non-const copy for passing to isMoveValid
+    Piece* tempGrid[8][8];
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
+            tempGrid[i][j] = grid[i][j];
+
+    for (int fx = 0; fx < 8; fx++)
+        for (int fy = 0; fy < 8; fy++)
+            if (grid[fx][fy] && grid[fx][fy]->getColor() == color)
+                for (int tx = 0; tx < 8; tx++)
+                    for (int ty = 0; ty < 8; ty++)
+                        if (isInBounds(tx, ty) &&
+                            grid[fx][fy]->isMoveValid(tx, ty, tempGrid) &&
+                            !wouldLeaveKingInCheck(fx, fy, tx, ty, color))
+                            return true;
+    return false;
+}
+
+// move execution
+bool chessBoard::movePiece(int fx, int fy, int tx, int ty) {
+    if (!isInBounds(fx, fy) || !isInBounds(tx, ty)) return false;
+    Piece* mover = grid[fx][fy];
+    if (!mover) return false;
+    if (!mover->isMoveValid(tx, ty, grid)) return false;
+    if (wouldLeaveKingInCheck(fx, fy, tx, ty, mover->getColor())) return false;
+
+    // Capture enemy piece
+    if (grid[tx][ty]) { delete grid[tx][ty]; grid[tx][ty] = nullptr; }
+
+    // Execute move
+    grid[tx][ty] = mover;
+    grid[fx][fy] = nullptr;
+    mover->setPosition(tx, ty);
+    mover->setMoved();
+
+    // Pawn promotion to Queen
+    if (mover->getType() == PAWN_TYPE) {
+        if ((mover->getColor() == WHITE && ty == 0) ||
+            (mover->getColor() == BLACK && ty == 7)) {
+            PlayerColor c = mover->getColor();
+            delete grid[tx][ty];
+            grid[tx][ty] = new Queen(tx, ty, c);
+        }
+    }
+
+    // Switch turn
+    currentTurn = (currentTurn == WHITE) ? BLACK : WHITE;
+
+    // Check for checkmate or stalemate
+    if (!hasAnyValidMove(currentTurn)) {
+        gameOver = true;
+        winner = (currentTurn == WHITE) ? BLACK : WHITE;
+    }
+
+    return true;
+}
+
+// click handler
+void chessBoard::handleClick(int pixelX, int pixelY) {
+    if (gameOver) return;
+    int col = pixelX / TILE_SIZE;
+    int row = pixelY / TILE_SIZE;
+    if (!isInBounds(col, row)) return;
+
+    if (selectedPiece == nullptr) {
+
+        // Select a piece
+        if (grid[col][row] && grid[col][row]->getColor() == currentTurn) {
+            selectedPiece = grid[col][row];
+            selectedX = col;
+            selectedY = row;
+        }
+    }
+    else {
+        // Attempt move
+        if (col == selectedX && row == selectedY) {
+            // Deselect
+            selectedPiece = nullptr;
+            selectedX = selectedY = -1;
+        }
+        else if (grid[col][row] && grid[col][row]->getColor() == currentTurn) {
+            // Switch selection to another friendly piece
+            selectedPiece = grid[col][row];
+            selectedX = col;
+            selectedY = row;
+        }
+        else {
+            movePiece(selectedX, selectedY, col, row);
+            selectedPiece = nullptr;
+            selectedX = selectedY = -1;
+        }
+    }
+}
+
