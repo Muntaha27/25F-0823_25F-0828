@@ -219,6 +219,35 @@ Texture* chessBoard::getTexture(Piece* p) {
     return &textures[(int)p->getType()][(int)p->getColor()];
 }
 
+// check detection
+bool chessBoard::isKingInCheck(PlayerColor color) const {
+    int kx = -1, ky = -1;
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
+            if (grid[i][j] != nullptr && grid[i][j]->getType() == KING && grid[i][j]->getColor() == color)
+            {
+                kx = i; ky = j;
+            }
+
+    if (kx == -1) return false;
+
+    // Non-const copy for isMoveValid
+    Piece* tempGrid[8][8];
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
+            tempGrid[i][j] = grid[i][j];
+
+    PlayerColor enemy = (color == WHITE) ? BLACK : WHITE;
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
+            if (grid[i][j] && grid[i][j]->getColor() == enemy) {
+                Piece* enemyPlr = grid[i][j];
+                if (enemyPlr->isMoveValid(kx, ky, tempGrid))
+                    return true;
+            }
+    return false;
+}
+
 
 // simulate move to check if it leaves king in check
 bool chessBoard::wouldLeaveKingInCheck(int fx, int fy, int tx, int ty, PlayerColor color) const {
