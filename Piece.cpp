@@ -335,3 +335,82 @@ void chessBoard::handleClick(int pixelX, int pixelY) {
     }
 }
 
+// drawing
+void chessBoard::drawBoard(RenderWindow& window) {
+    // Draw tiles
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            RectangleShape tile(Vector2f((float)TILE_SIZE, (float)TILE_SIZE));
+            tile.setPosition(Vector2f((float)(i * TILE_SIZE), (float)(j * TILE_SIZE)));
+            if ((i + j) % 2 == 0)
+                tile.setFillColor(Color(235, 236, 208)); // light
+            else
+                tile.setFillColor(Color(115, 149, 82));  // dark
+            window.draw(tile);
+        }
+    }
+    drawHighlights(window);
+    drawPieces(window);
+}
+
+void chessBoard::drawHighlights(RenderWindow& window) {
+    if (!selectedPiece) return;
+
+    // Highlight selected tile
+    RectangleShape sel(Vector2f((float)TILE_SIZE, (float)TILE_SIZE));
+    sel.setPosition(Vector2f((float)(selectedX * TILE_SIZE), (float)(selectedY * TILE_SIZE)));
+    sel.setFillColor(Color(186, 202, 68, 180));
+    window.draw(sel);
+
+    // Highlight valid moves
+    for (int tx = 0; tx < 8; tx++) {
+        for (int ty = 0; ty < 8; ty++) {
+            if (selectedPiece->isMoveValid(tx, ty, grid) &&
+                !wouldLeaveKingInCheck(selectedX, selectedY, tx, ty, currentTurn)) {
+                RectangleShape hint(Vector2f((float)TILE_SIZE, (float)TILE_SIZE));
+                hint.setPosition(Vector2f((float)(tx * TILE_SIZE), (float)(ty * TILE_SIZE)));
+                if (grid[tx][ty]) // enemy capture
+                    hint.setFillColor(Color(220, 60, 60, 150));
+                else
+                    hint.setFillColor(Color(100, 200, 100, 120));
+                window.draw(hint);
+            }
+        }
+    }
+
+    // Highlight king in check
+    PlayerColor enemy = (currentTurn == WHITE) ? BLACK : WHITE;
+    if (isKingInCheck(currentTurn)) {
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
+                if (grid[i][j] && grid[i][j]->getType() == KING && grid[i][j]->getColor() == currentTurn) {
+                    RectangleShape checkHL(Vector2f((float)TILE_SIZE, (float)TILE_SIZE));
+                    checkHL.setPosition(Vector2f((float)(i * TILE_SIZE), (float)(j * TILE_SIZE)));
+                    checkHL.setFillColor(Color(255, 0, 0, 140));
+                    window.draw(checkHL);
+                }
+    }
+}
+
+void chessBoard::drawPieces(RenderWindow& window) {
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            if (!grid[i][j]) continue;
+            Piece* p = grid[i][j];
+            Texture* tex = getTexture(p); // [ty][c]
+            Sprite sprite(*tex);
+
+            // Scale to fit tile
+            Vector2u tSize = tex->getSize();
+            float scaleX = (float)TILE_SIZE / tSize.x;
+            float scaleY = (float)TILE_SIZE / tSize.y;
+            sprite.setScale({ scaleX, scaleY });
+            sprite.setPosition({ (float)(i * TILE_SIZE), (float)(j * TILE_SIZE) });
+            window.draw(sprite);
+        }
+    }
+}
+
+bool chessBoard::isGameOver() const { return gameOver; }
+PlayerColor chessBoard::getCurrentTurn() const { return currentTurn; }
+PlayerColor chessBoard::getWinner() const { return winner; }
