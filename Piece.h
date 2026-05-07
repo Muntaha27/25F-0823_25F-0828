@@ -99,3 +99,43 @@ public:
 	string getBlackTexturePath() const override;
 	PieceType getType() const override;
 };
+
+// board class (owns all pieces + logic)
+class chessBoard {
+private:
+	Piece* grid[8][8];
+	PlayerColor currentTurn;
+	Piece* selectedPiece;
+	int selectedX, selectedY;
+	bool gameOver;
+	PlayerColor winner;
+
+	// texture cache (one per piece type per color)
+	Texture textures[6][2]; // [PieceType][color]
+	bool texturesLoaded[6][2];
+
+	// internal helpers
+	void clearBoard();
+	void placePiece(Piece* p);
+	bool isKingInCheck(PlayerColor color) const;
+	bool hasAnyValidMove(PlayerColor color) const;
+	bool wouldLeaveKingInCheck(int fx, int fy, int tx, int ty, PlayerColor color) const;
+	Texture* getTexture(Piece* p);
+	void loadTexture(Piece* p);
+	bool isInBounds(int x, int y) const;
+
+public:
+	chessBoard();
+	~chessBoard();
+
+	void initPieces();
+	void handleClick(int pixelX, int pixelY);
+	bool movePiece(int fx, int fy, int tx, int ty);
+	void drawBoard(RenderWindow& window);
+	void drawHighlights(RenderWindow& window);
+	void drawPieces(RenderWindow& window);
+
+	bool isGameOver() const;
+	PlayerColor getCurrentTurn() const;
+	PlayerColor getWinner() const;
+};
