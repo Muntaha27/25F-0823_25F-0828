@@ -218,3 +218,24 @@ Texture* chessBoard::getTexture(Piece* p) {
     loadTexture(p);
     return &textures[(int)p->getType()][(int)p->getColor()];
 }
+
+
+// simulate move to check if it leaves king in check
+bool chessBoard::wouldLeaveKingInCheck(int fx, int fy, int tx, int ty, PlayerColor color) const {
+    // Temporarily make the move
+    Piece* temp = grid[tx][ty];
+    Piece* mover = grid[fx][fy];
+
+    const_cast<chessBoard*>(this)->grid[tx][ty] = mover;
+    const_cast<chessBoard*>(this)->grid[fx][fy] = nullptr;
+    if (mover) const_cast<Piece*>(mover)->setPosition(tx, ty);
+
+    bool inCheck = isKingInCheck(color);
+
+    // Undo the move
+    const_cast<chessBoard*>(this)->grid[fx][fy] = mover;
+    const_cast<chessBoard*>(this)->grid[tx][ty] = temp;
+    if (mover) const_cast<Piece*>(mover)->setPosition(fx, fy);
+
+    return inCheck;
+}
