@@ -43,7 +43,7 @@ bool King::isMoveValid(int nx, int ny, Piece* board[8][8]) const {
     if (board[nx][ny] && !isEnemy(board[nx][ny]))   return false;
     return true;
 }
-string King::getWhiteTexturePath() const { return "pieces/white/wk.png"; }
+string King::getWhiteTexturePath() const { return "pieces/white/w.png"; }
 string King::getBlackTexturePath() const { return "pieces/black/bk.png"; }
 PieceType King::getType() const { return KING; }
 
@@ -208,10 +208,19 @@ void chessBoard::loadTexture(Piece* p) {
 
     string path = (c == WHITE) ? p->getWhiteTexturePath() : p->getBlackTexturePath();
 
-    if (!textures[t][c].loadFromFile(path))
-        cerr << "Failed to load: " << path << "\n";
-    else
-        texturesLoaded[t][c] = true;
+
+    if (!textures[t][c].loadFromFile(path)) {
+        throw "Failed to load";
+    }
+    texturesLoaded[t][c] = true;
+
+}
+
+void chessBoard::preloadTextures() {
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
+            if (grid[i][j])
+                loadTexture(grid[i][j]);
 }
 
 Texture* chessBoard::getTexture(Piece* p) {

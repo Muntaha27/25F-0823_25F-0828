@@ -10,6 +10,15 @@ int main() {
     chessBoard board;
     board.initPieces();
 
+     try {
+        board.preloadTextures();
+    }
+    catch (const char* e) {
+        cerr << e << endl;
+        chessGUI.close();
+        return EXIT_FAILURE;  // game loop never starts
+    }
+
     // Game loop
     while (chessGUI.isOpen()) {
         while (const auto event = chessGUI.pollEvent()) {

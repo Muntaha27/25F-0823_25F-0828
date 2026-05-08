@@ -129,6 +129,7 @@ public:
 	~chessBoard();
 
 	void initPieces();
+	void preloadTextures();
 	void handleClick(int pixelX, int pixelY);
 	bool movePiece(int fx, int fy, int tx, int ty);
 	void drawBoard(RenderWindow& window);
