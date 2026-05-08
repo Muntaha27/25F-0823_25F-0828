@@ -43,7 +43,7 @@ bool King::isMoveValid(int nx, int ny, Piece* board[8][8]) const {
     if (board[nx][ny] && !isEnemy(board[nx][ny]))   return false;
     return true;
 }
-string King::getWhiteTexturePath() const { return "pieces/white/w.png"; }
+string King::getWhiteTexturePath() const { return "pieces/white/wk.png"; }
 string King::getBlackTexturePath() const { return "pieces/black/bk.png"; }
 PieceType King::getType() const { return KING; }
 
